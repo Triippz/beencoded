@@ -1,22 +1,22 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 
-import { UserModule } from '../user/user.module';
+import {MailModule} from "../mail/mail.module";
 import { SharedModule } from '../shared/shared.module';
-
+import { UserModule } from '../user/user.module';
+import { STRATEGY_JWT_AUTH } from './constants/strategy.constant';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
-
-import { LocalStrategy } from './strategies/local.strategy';
 import { JwtAuthStrategy } from './strategies/jwt-auth.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
-import { STRATEGY_JWT_AUTH } from './constants/strategy.constant';
+import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [
     SharedModule,
+    MailModule,
     PassportModule.register({ defaultStrategy: STRATEGY_JWT_AUTH }),
     JwtModule.registerAsync({
       imports: [SharedModule],

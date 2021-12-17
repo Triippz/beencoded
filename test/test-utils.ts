@@ -1,15 +1,14 @@
-import { createConnection, getConnection } from 'typeorm';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
+import { createConnection, getConnection } from 'typeorm';
 
-import { UserService } from '../src/user/services/user.service';
-
-import { ROLE } from '../src/auth/constants/role.constant';
-import { CreateUserInput } from '../src/user/dtos/user-create-input.dto';
+import { AUTHORITIES } from '../src/auth/constants/authority.constant';
 import { LoginInput } from '../src/auth/dtos/auth-login-input.dto';
 import { AuthTokenOutput } from '../src/auth/dtos/auth-token-output.dto';
-import { UserOutput } from '../src/user/dtos/user-output.dto';
 import { RequestContext } from '../src/shared/request-context/request-context.dto';
+import { CreateUserInput } from '../src/user/dtos/user-create-input.dto';
+import { UserOutput } from '../src/user/dtos/user-output.dto';
+import { UserService } from '../src/user/services/user.service';
 
 const TEST_DB_CONNECTION_NAME = 'e2e_test_connection';
 export const TEST_DB_NAME = 'e2e_test_db';
@@ -54,10 +53,11 @@ export const seedAdminUser = async (
   app: INestApplication,
 ): Promise<{ adminUser: UserOutput; authTokenForAdmin: AuthTokenOutput }> => {
   const defaultAdmin: CreateUserInput = {
-    name: 'Default Admin User',
+    firstName: 'Default',
+    lastName: 'Admin User',
     username: 'default-admin',
     password: 'default-admin-password',
-    roles: [ROLE.ADMIN],
+    authorities: [AUTHORITIES.ADMIN],
     isAccountDisabled: false,
     email: 'default-admin@example.com',
   };
@@ -66,7 +66,7 @@ export const seedAdminUser = async (
 
   // Creating Admin User
   const userService = app.get(UserService);
-  const userOutput = await userService.createUser(ctx, defaultAdmin);
+  const userOutput = await userService.createUser(ctx, defaultAdmin, false);
 
   const loginInput: LoginInput = {
     username: defaultAdmin.username,

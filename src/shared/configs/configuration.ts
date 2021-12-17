@@ -27,4 +27,24 @@ export default (): any => ({
     ),
   },
   defaultAdminUserPassword: process.env.DEFAULT_ADMIN_USER_PASSWORD,
+  app: {
+    fallbackLanguage: process.env.APP_FALLBACK_LANGUAGE ? process.env.APP_FALLBACK_LANGUAGE : 'en'
+  },
+  mail: {
+    transport: {
+      host: process.env.MAIL_HOST,
+      port: process.env.MAIL_PORT ? parseInt(process.env.MAIL_PORT, 10) : undefined,
+      ignoreTLS: process.env.MAIL_IGNORE_TLS === 'true',
+      secure: process.env.MAIL_SECURE === 'true',
+      requireTLS: process.env.MAIL_REQUIRE_TLS === 'true',
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASSWORD,
+      },
+    },
+    defaults: {
+      from: `"${process.env.MAIL_DEFAULT_NAME}" <${process.env.MAIL_DEFAULT_EMAIL}>`,
+    },
+  }
+  //   clientPort: process.env.MAIL_CLIENT_PORT ? parseInt(process.env.MAIL_CLIENT_PORT, 10) : undefined,
 });

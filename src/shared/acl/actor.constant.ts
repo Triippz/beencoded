@@ -1,10 +1,12 @@
-import { ROLE } from './../../auth/constants/role.constant';
+import {AUTHORITIES} from "../../auth/constants/authority.constant";
 
 /**
  * The actor who is perfoming the action
  */
 export interface Actor {
-  id: number;
+  id: string;
 
-  roles: string[];
+  // username: string;
+
+  authorities: AUTHORITIES[];
 }

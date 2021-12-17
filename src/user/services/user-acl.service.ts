@@ -1,20 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { ROLE } from './../../auth/constants/role.constant';
-import { Action } from './../../shared/acl/action.constant';
-import { User } from '../entities/user.entity';
+
+import { AUTHORITIES } from '../../auth/constants/authority.constant';
 import { BaseAclService } from '../../shared/acl/acl.service';
-import { Actor } from './../../shared/acl/actor.constant';
+import { Action } from '../../shared/acl/action.constant';
+import { Actor } from '../../shared/acl/actor.constant';
+import { User } from '../entities/user.entity';
 
 @Injectable()
 export class UserAclService extends BaseAclService {
   constructor() {
     super();
     // Admin can do all action
-    this.canDo(ROLE.ADMIN, [Action.Manage]);
+    this.canDo(AUTHORITIES.ADMIN, [Action.Manage]);
     //user can read himself or any other user
-    this.canDo(ROLE.USER, [Action.Read]);
+    this.canDo(AUTHORITIES.USER, [Action.Read]);
     // user can only update himself
-    this.canDo(ROLE.USER, [Action.Update], this.isUserItself);
+    this.canDo(AUTHORITIES.USER, [Action.Update], this.isUserItself);
   }
 
   isUserItself(resource: User, actor: Actor): boolean {

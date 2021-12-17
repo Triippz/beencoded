@@ -1,8 +1,8 @@
+import { AUTHORITIES } from '../../auth/constants/authority.constant';
 import { AclRule, RuleCallback } from './acl-rule.constant';
 import { Action } from './action.constant';
-import { ROLE } from './../../auth/constants/role.constant';
-import { Resource } from './resource.constant';
 import { Actor } from './actor.constant';
+import { Resource } from './resource.constant';
 
 export class BaseAclService {
   /**
@@ -11,16 +11,16 @@ export class BaseAclService {
   protected aclRules: AclRule[] = [];
 
   /**
-   * Set ACL rule for a role
+   * Set ACL rule for an authority
    */
   protected canDo(
-    role: ROLE,
+    authority: AUTHORITIES,
     actions: Action[],
     ruleCallback?: RuleCallback,
   ): void {
     ruleCallback
-      ? this.aclRules.push({ role, actions, ruleCallback })
-      : this.aclRules.push({ role, actions });
+      ? this.aclRules.push({ authority, actions, ruleCallback })
+      : this.aclRules.push({ authority, actions });
   }
 
   /**
@@ -31,13 +31,13 @@ export class BaseAclService {
       canDoAction: (action: Action, resource?: Resource) => {
         let canDoAction = false;
 
-        actor.roles.forEach((actorRole) => {
+        actor.authorities.forEach((actorAuthority) => {
           //If already has access, return
           if (canDoAction) return true;
 
-          //find all rules for given user role
+          //find all rules for given user authority
           const aclRules = this.aclRules.filter(
-            (rule) => rule.role === actorRole,
+            (rule) => rule.authority === actorAuthority,
           );
 
           //for each rule, check action permission

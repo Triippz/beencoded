@@ -26,16 +26,16 @@ export class ArticleAclService extends BaseAclService {
 
   constructor() {
     super();
-    this.canDo(ROLE.ADMIN, [Action.Manage])
-    this.canDo(ROLE.USER, [Action.Read]);
+    this.canDo(AUTHORITIES.ADMIN, [Action.Manage])
+    this.canDo(AUTHORITIES.USER, [Action.Read]);
   }
 }
 
 ```
 
-`BaseAclService`'s `canDo(role: ROLE, actions: Action[], ruleCallback?: RuleCallback,)` method takes 3 parameters
+`BaseAclService`'s `canDo(authority: AUTHORITIES, actions: Action[], ruleCallback?: RuleCallback,)` method takes 3 parameters
 
-- role: for which user `ROLE` we are defining the rule
+- authority: for which user `AUTHORITIES` we are defining the rule
 - actions: an array of allowed `Action`
 - ruleCallback: an optional callback method to define more custom logics
 
@@ -62,9 +62,9 @@ export class ArticleAclService extends BaseAclService {
 
   constructor() {
     super();
-    this.canDo(ROLE.ADMIN, [Action.Manage])
-    this.canDo(ROLE.USER, [Action.Read]);
-    this.canDo(ROLE.USER, [Action.Update], this.isArticleAutor);
+    this.canDo(AUTHORITIES.ADMIN, [Action.Manage])
+    this.canDo(AUTHORITIES.USER, [Action.Read]);
+    this.canDo(AUTHORITIES.USER, [Action.Update], this.isArticleAutor);
   }
 
   isArticleAutor(resource: Article, actor: Actor): boolean {

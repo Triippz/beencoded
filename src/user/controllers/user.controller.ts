@@ -4,10 +4,10 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { ROLE } from '../../auth/constants/role.constant';
-import { Roles } from '../../auth/decorators/role.decorator';
+import { AUTHORITIES } from '../../auth/constants/authority.constant';
+import { Authorities } from '../../auth/decorators/authority.decorator';
+import { AuthorityGuard } from '../../auth/guards/authority.guard';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../auth/guards/roles.guard';
 import {
     BaseApiErrorResponse, BaseApiResponse, SwaggerBaseApiResponse
 } from '../../shared/dtos/base-api-response.dto';
@@ -65,8 +65,8 @@ export class UserController {
     status: HttpStatus.UNAUTHORIZED,
     type: BaseApiErrorResponse,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLE.ADMIN, ROLE.USER)
+  @UseGuards(JwtAuthGuard, AuthorityGuard)
+  @Authorities(AUTHORITIES.ADMIN, AUTHORITIES.USER)
   async getUsers(
     @ReqContext() ctx: RequestContext,
     @Query() query: PaginationParamsDto,
@@ -82,7 +82,7 @@ export class UserController {
     return { data: users, meta: { count } };
   }
 
-  // TODO: ADD RoleGuard
+  // TODO: ADD AuthorityGuard
   // NOTE : This can be made a admin only endpoint. For normal users they can use GET /me
   @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
@@ -99,7 +99,7 @@ export class UserController {
   })
   async getUser(
     @ReqContext() ctx: RequestContext,
-    @Param('id') id: number,
+    @Param('id') id: string,
   ): Promise<BaseApiResponse<UserOutput>> {
     this.logger.log(ctx, `${this.getUser.name} was called`);
 
@@ -107,7 +107,7 @@ export class UserController {
     return { data: user, meta: {} };
   }
 
-  // TODO: ADD RoleGuard
+  // TODO: ADD AuthorityGuard
   // NOTE : This can be made a admin only endpoint. For normal users they can use PATCH /me
   @Patch(':id')
   @ApiOperation({
@@ -124,7 +124,7 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   async updateUser(
     @ReqContext() ctx: RequestContext,
-    @Param('id') userId: number,
+    @Param('id') userId: string,
     @Body() input: UpdateUserInput,
   ): Promise<BaseApiResponse<UserOutput>> {
     this.logger.log(ctx, `${this.updateUser.name} was called`);

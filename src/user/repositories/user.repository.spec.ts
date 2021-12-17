@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { ROLE } from '../../auth/constants/role.constant';
+import { AUTHORITIES } from '../../auth/constants/authority.constant';
 import { User } from '../entities/user.entity';
 import { UserRepository } from './user.repository';
 
@@ -23,19 +23,20 @@ describe('UserRepository', () => {
   describe('Get user by id', () => {
     const currentDate = new Date();
     it('should call findOne with correct id', () => {
-      const id = 1;
+      const id = "1";
 
       const expectedOutput: User = {
         id,
-        name: 'Default User',
+        firstName: 'Default',
+        lastName: 'User',
         username: 'default-user',
+        slug: 'default-user',
         password: 'random-password',
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
         isAccountDisabled: false,
         email: 'default-user@random.com',
         createdAt: currentDate,
         updatedAt: currentDate,
-        articles: [],
       };
 
       jest.spyOn(repository, 'findOne').mockResolvedValue(expectedOutput);
@@ -45,27 +46,28 @@ describe('UserRepository', () => {
 
     it('should return user if found', async () => {
       const expectedOutput: User = {
-        id: 1,
-        name: 'Default User',
+        id: "1",
+        firstName: 'Default',
+        lastName: 'User',
         username: 'default-user',
+        slug: 'default-user',
         password: 'random-password',
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
         isAccountDisabled: false,
         email: 'default-user@random.com',
         createdAt: currentDate,
         updatedAt: currentDate,
-        articles: [],
       };
 
       jest.spyOn(repository, 'findOne').mockResolvedValue(expectedOutput);
 
-      expect(await repository.getById(1)).toEqual(expectedOutput);
+      expect(await repository.getById("1")).toEqual(expectedOutput);
     });
 
     it('should throw NotFoundError when user not found', async () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(undefined);
       try {
-        await repository.getById(1);
+        await repository.getById("1");
       } catch (error) {
         expect(error.constructor).toBe(NotFoundException);
       }

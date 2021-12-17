@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-
-import { AppLoggerModule } from './logger/logger.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import {SnakeNamingStrategy} from "typeorm-naming-strategies";
 
 import { configModuleOptions } from './configs/module-options';
 import { AllExceptionsFilter } from './filters/all-exceptions.filter';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { AppLoggerModule } from './logger/logger.module';
+import {SlugProvider} from "./providers/slug.provider";
 
 @Module({
   imports: [
@@ -28,11 +29,13 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
         timezone: 'Z',
         synchronize: false,
         debug: configService.get<string>('env') === 'development',
+        subscribers: [__dirname + '/../**/*.subscriber{.ts,.js}'],
+        namingStrategy: new SnakeNamingStrategy(),
       }),
     }),
     AppLoggerModule,
   ],
-  exports: [AppLoggerModule, ConfigModule],
+  exports: [AppLoggerModule, ConfigModule, SlugProvider],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
 
@@ -40,6 +43,7 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
     },
+    SlugProvider,
   ],
 })
 export class SharedModule {}

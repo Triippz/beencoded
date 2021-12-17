@@ -1,15 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { UserController } from './user.controller';
-
-import { UserService } from '../services/user.service';
-
+import { AUTHORITIES } from '../../auth/constants/authority.constant';
 import { PaginationParamsDto } from '../../shared/dtos/pagination-params.dto';
-import { UserOutput } from '../dtos/user-output.dto';
-import { ROLE } from '../../auth/constants/role.constant';
-import { UpdateUserInput } from '../dtos/user-update-input.dto';
 import { AppLogger } from '../../shared/logger/logger.service';
 import { RequestContext } from '../../shared/request-context/request-context.dto';
+import { UserOutput } from '../dtos/user-output.dto';
+import { UpdateUserInput } from '../dtos/user-update-input.dto';
+import { UserService } from '../services/user.service';
+import { UserController } from './user.controller';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -54,10 +52,11 @@ describe('UserController', () => {
   const currentDate = new Date().toString();
 
   const expectedOutput: UserOutput = {
-    id: 1,
+    id: "1",
     username: 'default-user',
-    name: 'default-name',
-    roles: [ROLE.USER],
+    firstName: 'default-name',
+    lastName: 'default-lastname',
+    authorities: [AUTHORITIES.USER],
     isAccountDisabled: false,
     email: 'e2etester@random.com',
     createdAt: currentDate,
@@ -66,7 +65,7 @@ describe('UserController', () => {
 
   describe('Get user by id', () => {
     it('should call service method getUserById with id', async () => {
-      const id = 1;
+      const id = "1";
       mockedUserService.getUserById.mockResolvedValue(expectedOutput);
 
       expect(await controller.getUser(ctx, id)).toEqual({
@@ -82,7 +81,7 @@ describe('UserController', () => {
       const input = new UpdateUserInput();
       mockedUserService.updateUser.mockResolvedValue(expectedOutput);
 
-      expect(await controller.updateUser(ctx, 1, input)).toEqual({
+      expect(await controller.updateUser(ctx, "1", input)).toEqual({
         data: expectedOutput,
         meta: {},
       });

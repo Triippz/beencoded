@@ -1,9 +1,9 @@
 import {
   Body,
   ClassSerializerInterceptor,
-  Controller,
+  Controller, Get,
   HttpCode,
-  HttpStatus,
+  HttpStatus, Param,
   Post,
   UseGuards,
   UseInterceptors,
@@ -18,6 +18,7 @@ import {
 import { AppLogger } from '../../shared/logger/logger.service';
 import { ReqContext } from '../../shared/request-context/req-context.decorator';
 import { RequestContext } from '../../shared/request-context/request-context.dto';
+import {AccountMessageOutput} from "../../user/dtos/account-message-output";
 import { LoginInput } from '../dtos/auth-login-input.dto';
 import { RefreshTokenInput } from '../dtos/auth-refresh-token-input.dto';
 import { RegisterInput } from '../dtos/auth-register-input.dto';
@@ -74,8 +75,28 @@ export class AuthController {
     @ReqContext() ctx: RequestContext,
     @Body() input: RegisterInput,
   ): Promise<BaseApiResponse<RegisterOutput>> {
-    const registeredUser = await this.authService.register(ctx, input);
+    const registeredUser = await this.authService.register(ctx, input, true);
     return { data: registeredUser, meta: {} };
+  }
+
+  @Get('activate/:key')
+  @ApiOperation({
+    summary: 'User activation API',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SwaggerBaseApiResponse(AccountMessageOutput),
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    type: SwaggerBaseApiResponse(AccountMessageOutput),
+  })
+  async activate(
+    @ReqContext() ctx: RequestContext,
+    @Param('key') key: string,
+  ): Promise<BaseApiResponse<AccountMessageOutput>> {
+    const activatedMessage = await this.authService.activate(ctx, key);
+    return {data: activatedMessage, meta: {}};
   }
 
   @Post('refresh-token')

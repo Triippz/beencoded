@@ -3,17 +3,18 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { plainToClass } from 'class-transformer';
 
+import { AppLogger } from '../../shared/logger/logger.service';
+import { RequestContext } from '../../shared/request-context/request-context.dto';
+import {AccountMessageOutput} from "../../user/dtos/account-message-output";
+import { UserOutput } from '../../user/dtos/user-output.dto';
 import { UserService } from '../../user/services/user.service';
-import { ROLE } from '../constants/role.constant';
+import { AUTHORITIES } from '../constants/authority.constant';
 import { RegisterInput } from '../dtos/auth-register-input.dto';
 import { RegisterOutput } from '../dtos/auth-register-output.dto';
 import {
   AuthTokenOutput,
   UserAccessTokenClaims,
 } from '../dtos/auth-token-output.dto';
-import { UserOutput } from '../../user/dtos/user-output.dto';
-import { AppLogger } from '../../shared/logger/logger.service';
-import { RequestContext } from '../../shared/request-context/request-context.dto';
 
 @Injectable()
 export class AuthService {
@@ -57,14 +58,15 @@ export class AuthService {
   async register(
     ctx: RequestContext,
     input: RegisterInput,
+    sendEmail = false,
   ): Promise<RegisterOutput> {
     this.logger.log(ctx, `${this.register.name} was called`);
 
     // TODO : Setting default role as USER here. Will add option to change this later via ADMIN users.
-    input.roles = [ROLE.USER];
-    input.isAccountDisabled = false;
+    input.authorities = [AUTHORITIES.USER];
+    input.isAccountDisabled = true;
 
-    const registeredUser = await this.userService.createUser(ctx, input);
+    const registeredUser = await this.userService.createUser(ctx, input, sendEmail);
     return plainToClass(RegisterOutput, registeredUser, {
       excludeExtraneousValues: true,
     });
@@ -91,7 +93,7 @@ export class AuthService {
     const payload = {
       username: user.username,
       sub: user.id,
-      roles: user.roles,
+      authorities: user.authorities,
     };
 
     const authToken = {
@@ -106,5 +108,9 @@ export class AuthService {
     return plainToClass(AuthTokenOutput, authToken, {
       excludeExtraneousValues: true,
     });
+  }
+
+  async activate(ctx: RequestContext, key: string): Promise<AccountMessageOutput> {
+    return this.userService.activate(ctx, key);
   }
 }

@@ -2,5 +2,5 @@
  * ACL resource
  */
 export type Resource = {
-  id: number;
+  id: string|number;
 };

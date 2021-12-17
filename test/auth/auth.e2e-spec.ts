@@ -1,19 +1,19 @@
-import * as request from 'supertest';
-import { Test } from '@nestjs/testing';
-import { AppModule } from './../../src/app.module';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import * as request from 'supertest';
 
-import {
-  closeDBAfterTest,
-  seedAdminUser,
-  createDBEntities,
-  resetDBBeforeTest,
-} from './../test-utils';
-import { RegisterInput } from '../../src/auth/dtos/auth-register-input.dto';
+import { AppModule } from '../../src/app.module';
+import { AUTHORITIES } from '../../src/auth/constants/authority.constant';
 import { LoginInput } from '../../src/auth/dtos/auth-login-input.dto';
 import { RefreshTokenInput } from '../../src/auth/dtos/auth-refresh-token-input.dto';
+import { RegisterInput } from '../../src/auth/dtos/auth-register-input.dto';
 import { AuthTokenOutput } from '../../src/auth/dtos/auth-token-output.dto';
-import { ROLE } from '../../src/auth/constants/role.constant';
+import {
+  closeDBAfterTest,
+  createDBEntities,
+  resetDBBeforeTest,
+  seedAdminUser,
+} from '../test-utils';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -43,10 +43,11 @@ describe('AuthController (e2e)', () => {
 
   describe('register a new user', () => {
     const registerInput: RegisterInput = {
-      name: 'e2etester',
+      firstName: 'e2etester',
+      lastName: 'e2etester',
       username: 'e2etester',
       password: '12345678',
-      roles: [ROLE.USER],
+      authorities: [AUTHORITIES.USER],
       isAccountDisabled: false,
       email: 'e2etester@random.com',
     };
@@ -55,7 +56,7 @@ describe('AuthController (e2e)', () => {
       id: 2,
       name: 'e2etester',
       username: 'e2etester',
-      roles: [ROLE.USER],
+      authorities: [AUTHORITIES.USER],
       isAccountDisabled: false,
       email: 'e2etester@random.com',
     };

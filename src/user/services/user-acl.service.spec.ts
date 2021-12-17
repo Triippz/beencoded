@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ROLE } from './../../auth/constants/role.constant';
-import { Action } from './../../shared/acl/action.constant';
+
+import { AUTHORITIES } from '../../auth/constants/authority.constant';
+import { Action } from '../../shared/acl/action.constant';
 import { UserAclService } from './user-acl.service';
 
 describe('UserAclService', () => {
@@ -22,9 +23,9 @@ describe('UserAclService', () => {
     let userAcl;
     beforeEach(async () => {
       const user = {
-        id: 6,
+        id: "6",
         username: 'admin',
-        roles: [ROLE.ADMIN],
+        authorities: [AUTHORITIES.ADMIN],
       };
       userAcl = service.forActor(user);
     });
@@ -47,7 +48,7 @@ describe('UserAclService', () => {
     });
   });
 
-  describe('for user role', () => {
+  describe('for user authority', () => {
     let user;
     let userAcl;
 
@@ -55,7 +56,7 @@ describe('UserAclService', () => {
       user = {
         id: 11,
         username: 'jeo',
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
       };
       userAcl = service.forActor(user);
     });

@@ -13,14 +13,20 @@ import {
   MaxLength,
 } from 'class-validator';
 
-import { ROLE } from '../../auth/constants/role.constant';
+import { AUTHORITIES } from '../../auth/constants/authority.constant';
 
 export class CreateUserInput {
   @ApiPropertyOptional()
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  name: string;
+  firstName: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -37,8 +43,8 @@ export class CreateUserInput {
   @ApiProperty()
   @IsArray()
   @ArrayNotEmpty()
-  @IsEnum(ROLE, { each: true })
-  roles: ROLE[];
+  @IsEnum(AUTHORITIES, { each: true })
+  authorities: AUTHORITIES[];
 
   @ApiProperty()
   @IsNotEmpty()

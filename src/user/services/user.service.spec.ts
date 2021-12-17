@@ -2,8 +2,10 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
 
-import { ROLE } from '../../auth/constants/role.constant';
+import { AUTHORITIES } from '../../auth/constants/authority.constant';
+import { MailService } from '../../mail/mail.service';
 import { AppLogger } from '../../shared/logger/logger.service';
+import {SlugProvider} from "../../shared/providers/slug.provider";
 import { RequestContext } from '../../shared/request-context/request-context.dto';
 import { UpdateUserInput } from '../dtos/user-update-input.dto';
 import { User } from '../entities/user.entity';
@@ -20,11 +22,20 @@ describe('UserService', () => {
     getById: jest.fn(),
   };
 
+  const mockedMailService = {
+    userSignUp: jest.fn(),
+  };
+
+  const mockedSlugService = {
+    slugify: jest.fn(),
+  }
+
   const user = {
-    id: 6,
+    id: "6x",
     username: 'jhon',
-    name: 'Jhon doe',
-    roles: [ROLE.USER],
+    firstName: 'Jhon',
+    lastName: 'doe',
+    authorities: [AUTHORITIES.USER],
   };
 
   const mockedLogger = { setContext: jest.fn(), log: jest.fn() };
@@ -38,6 +49,8 @@ describe('UserService', () => {
           useValue: mockedRepository,
         },
         { provide: AppLogger, useValue: mockedLogger },
+        { provide: MailService, useValue: mockedMailService },
+        { provide: SlugProvider, useValue: mockedSlugService },
       ],
     }).compile();
 
@@ -63,35 +76,38 @@ describe('UserService', () => {
 
     it('should encrypt password before saving', async () => {
       const userInput = {
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         username: user.username,
         password: 'plain-password',
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
         isAccountDisabled: false,
         email: 'randomUser@random.com',
       };
 
-      await service.createUser(ctx, userInput);
+      await service.createUser(ctx, userInput, false);
       expect(bcrypt.hash).toBeCalledWith(userInput.password, 10);
     });
 
     it('should save user with encrypted password', async () => {
       const userInput = {
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         username: user.username,
         password: 'plain-password',
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
         isAccountDisabled: false,
         email: 'randomUser@random.com',
       };
 
-      await service.createUser(ctx, userInput);
-
+      await service.createUser(ctx, userInput, false);
+      
       expect(mockedRepository.save).toBeCalledWith({
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         username: user.username,
         password: 'hashed-password',
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
         isAccountDisabled: false,
         email: 'randomUser@random.com',
       });
@@ -99,28 +115,37 @@ describe('UserService', () => {
 
     it('should return serialized user', async () => {
       jest.spyOn(mockedRepository, 'save').mockImplementation(async (input) => {
-        input.id = 6;
+        input.id = "6x";
         return input;
       });
 
+      const createdAt = new Date();
+      const updatedAt = new Date();
+
       const userInput = {
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         username: user.username,
         password: 'plain-password',
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
         isAccountDisabled: false,
         email: 'randomUser@random.com',
+        createdAt,
+        updatedAt,
       };
 
-      const result = await service.createUser(ctx, userInput);
+      const result = await service.createUser(ctx, userInput, false);
 
       expect(result).toEqual({
         id: user.id,
-        name: userInput.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         username: userInput.username,
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
         isAccountDisabled: false,
         email: 'randomUser@random.com',
+        createdAt,
+        updatedAt,
       });
       expect(result).not.toHaveProperty('password');
     });
@@ -147,9 +172,10 @@ describe('UserService', () => {
 
       expect(result).toEqual({
         id: user.id,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         username: user.username,
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
       });
     });
 
@@ -175,16 +201,17 @@ describe('UserService', () => {
 
       expect(result).toEqual({
         id: user.id,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         username: user.username,
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
       });
     });
 
     it('throw not found exception if user is not found', async () => {
       mockedRepository.getById.mockRejectedValue(new NotFoundException());
       try {
-        await service.getUserById(ctx, 100);
+        await service.getUserById(ctx, "100");
       } catch (error) {
         expect(error.constructor).toBe(NotFoundException);
       }
@@ -233,9 +260,10 @@ describe('UserService', () => {
 
       expect(result).toEqual({
         id: user.id,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         username: user.username,
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
       });
     });
   });
@@ -269,9 +297,10 @@ describe('UserService', () => {
 
       expect(result).toEqual({
         id: user.id,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         username: user.username,
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
       });
     });
 
@@ -282,9 +311,10 @@ describe('UserService', () => {
 
   describe('updateUser', () => {
     it('should call repository.save with correct input', async () => {
-      const userId = 1;
+      const userId = "1";
       const input: UpdateUserInput = {
-        name: 'Test',
+        firstName: 'Test',
+        lastName: 'Test',
         password: 'updated-password',
       };
 
@@ -292,30 +322,32 @@ describe('UserService', () => {
 
       const foundUser: User = {
         id: userId,
-        name: 'Default User',
+        firstName: 'Default',
+        lastName: "User",
+        slug: "default-user",
         username: 'default-user',
         password: 'random-password',
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
         isAccountDisabled: false,
         email: 'randomUser@random.com',
         createdAt: currentDate,
         updatedAt: currentDate,
-        articles: [],
       };
 
       mockedRepository.getById.mockResolvedValue(foundUser);
 
       const expected: User = {
-        id: 1,
-        name: input.name,
+        id: "1",
+        firstName: input.firstName,
+        lastName: input.lastName,
         username: 'default-user',
+        slug: "default-user",
         password: input.password,
-        roles: [ROLE.USER],
+        authorities: [AUTHORITIES.USER],
         isAccountDisabled: false,
         email: 'randomUser@random.com',
         createdAt: currentDate,
         updatedAt: currentDate,
-        articles: [],
       };
 
       jest
@@ -327,9 +359,10 @@ describe('UserService', () => {
     });
 
     it('should throw not found exception if user not found', async () => {
-      const userId = 1;
+      const userId = "1";
       const input: UpdateUserInput = {
-        name: 'Test',
+        firstName: 'Test',
+        lastName: 'Test',
         password: 'updated-password',
       };
 
