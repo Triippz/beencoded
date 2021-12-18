@@ -2,7 +2,7 @@ import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {compare, hash} from 'bcrypt';
 import {plainToClass} from 'class-transformer';
-import { uuid } from 'uuidv4';
+import { v4 as uuid } from "uuid";
 
 import {MailService} from "../../mail/mail.service";
 import {BaseApiException} from "../../shared/exceptions/base-api.exception";

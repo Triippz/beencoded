@@ -64,7 +64,7 @@ export class AuthService {
 
     // TODO : Setting default role as USER here. Will add option to change this later via ADMIN users.
     input.authorities = [AUTHORITIES.USER];
-    input.isAccountDisabled = true;
+    input.isAccountDisabled = sendEmail;
 
     const registeredUser = await this.userService.createUser(ctx, input, sendEmail);
     return plainToClass(RegisterOutput, registeredUser, {

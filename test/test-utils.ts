@@ -25,7 +25,7 @@ export const resetDBBeforeTest = async (): Promise<void> => {
     host: 'localhost',
     port: 3306,
     username: 'root',
-    password: 'example',
+    password: 'root',
   });
 
   await connection.query(`drop database if exists ${TEST_DB_NAME}`);
@@ -42,7 +42,7 @@ export const createDBEntities = async (): Promise<void> => {
     host: 'localhost',
     port: 3306,
     username: 'root',
-    password: 'example',
+    password: 'root',
     database: TEST_DB_NAME,
     entities: [__dirname + '/../src/**/*.entity{.ts,.js}'],
     synchronize: true,

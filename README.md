@@ -1,11 +1,11 @@
 ## BeenCoded
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-![Build Badge](https://github.com/monstar-lab-oss/nestjs-starter-rest-api/workflows/build/badge.svg)
-![Tests Badge](https://github.com/monstar-lab-oss/nestjs-starter-rest-api/workflows/tests/badge.svg)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=monstar-lab-oss_nestjs-starter-rest-api&metric=alert_status)](https://sonarcloud.io/dashboard?id=monstar-lab-oss_nestjs-starter-rest-api)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=monstar-lab-oss_nestjs-starter-rest-api&metric=coverage)](https://sonarcloud.io/dashboard?id=monstar-lab-oss_nestjs-starter-rest-api)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=monstar-lab-oss_nestjs-starter-rest-api&metric=code_smells)](https://sonarcloud.io/dashboard?id=monstar-lab-oss_nestjs-starter-rest-api)
+![Build Badge](https://github.com/triippz/beencoded/workflows/build/badge.svg)
+![Tests Badge](https://github.com/triippz/beencoded/workflows/tests/badge.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Triippz_beencoded&metric=alert_status)](https://sonarcloud.io/dashboard?id=monstar-lab-oss_nestjs-starter-rest-api)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Triippz_beencoded&metric=coverage)](https://sonarcloud.io/dashboard?id=monstar-lab-oss_nestjs-starter-rest-api)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Triippz_beencoded&metric=code_smells)](https://sonarcloud.io/dashboard?id=monstar-lab-oss_nestjs-starter-rest-api)
 
 
 ## Installation

@@ -1,17 +1,11 @@
-import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
+import {HttpStatus, INestApplication, ValidationPipe} from '@nestjs/common';
+import {Test} from '@nestjs/testing';
 import * as request from 'supertest';
 
-import { AppModule } from '../../src/app.module';
-
-import {
-  resetDBBeforeTest,
-  createDBEntities,
-  closeDBAfterTest,
-  seedAdminUser,
-} from '../test-utils';
-import { UserOutput } from '../../src/user/dtos/user-output.dto';
-import { AuthTokenOutput } from '../../src/auth/dtos/auth-token-output.dto';
+import {AppModule} from '../../src/app.module';
+import {AuthTokenOutput} from '../../src/auth/dtos/auth-token-output.dto';
+import {UserOutput} from '../../src/user/dtos/user-output.dto';
+import {closeDBAfterTest, createDBEntities, resetDBBeforeTest, seedAdminUser,} from '../test-utils';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
@@ -69,12 +63,10 @@ describe('UserController (e2e)', () => {
 
   describe('get a user by Id', () => {
     it('should get a user by Id', async () => {
-      const expectedOutput = adminUser;
-
       return request(app.getHttpServer())
-        .get('/users/1')
+        .get(`/users/${adminUser.id}`)
         .expect(HttpStatus.OK)
-        .expect({ data: expectedOutput, meta: {} });
+        .expect({ data: adminUser, meta: {} });
     });
 
     it('throws NOT_FOUND when user doesnt exist', () => {
@@ -85,7 +77,8 @@ describe('UserController (e2e)', () => {
   });
 
   const updateUserInput = {
-    name: 'New e2etestername',
+    firstName: 'New e2efirstname',
+    lastName: 'New e2elastname',
     password: '12345678aA12',
   };
 
@@ -93,11 +86,11 @@ describe('UserController (e2e)', () => {
     it('successfully updates a user', async () => {
       const expectedOutput: UserOutput = {
         ...adminUser,
-        ...{ name: 'New e2etestername' },
+        ...{ firstName: 'New e2efirstname', lastName: 'New e2elastname' },
       };
 
       return request(app.getHttpServer())
-        .patch('/users/1')
+        .patch(`/users/${adminUser.id}`)
         .send(updateUserInput)
         .expect(HttpStatus.OK)
         .expect((res) => {
@@ -116,7 +109,7 @@ describe('UserController (e2e)', () => {
     it('update fails when incorrect password type', () => {
       updateUserInput.password = 12345 as any;
       return request(app.getHttpServer())
-        .patch('/users/1')
+        .patch(`/users/${adminUser.id}`)
         .expect(HttpStatus.BAD_REQUEST)
         .send(updateUserInput)
         .expect((res) => {
