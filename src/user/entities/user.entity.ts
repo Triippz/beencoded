@@ -2,7 +2,7 @@ import {Exclude} from "class-transformer";
 import {
   Column,
   CreateDateColumn,
-  Entity, Index, JoinColumn, JoinTable, ManyToMany,
+  Entity, Index, JoinColumn,
   OneToMany, OneToOne,
   PrimaryGeneratedColumn,
   Unique,
